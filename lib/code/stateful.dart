@@ -33,12 +33,31 @@ class GalleryPage extends StatelessWidget {
   }
 }
 
-class Photo extends StatelessWidget {
+class Photo extends StatefulWidget {
   final String url;
   const Photo(this.url, {super.key});
 
   @override
+  PhotoState createState() => PhotoState(url);
+}
+
+class PhotoState extends State<Photo> {
+  String url;
+  int index = 0;
+
+  PhotoState(this.url);
+
+  onTap() {
+    setState(() {
+      index >= urls.length - 1 ? index = 0 : index++;
+    });
+    url = urls[index];
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(padding: const EdgeInsets.only(top: 10),child: Image.network(url));
+    return Container(
+        padding: const EdgeInsets.only(top: 10),
+        child: GestureDetector(onTap: onTap, child: Image.network(url)));
   }
 }
