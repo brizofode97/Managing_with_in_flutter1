@@ -29,6 +29,7 @@ class AppState extends State<App> {
             }
           });
         }
+        toogleTagging(null);
       } else {
         photoStates.forEach((element) {
           element.display = tag == "all" ? true : element.tags.contains(tag);
@@ -37,7 +38,7 @@ class AppState extends State<App> {
     });
   }
 
-  void toogleTagging(String url) {
+  void toogleTagging(String? url) {
     setState(() {
       isTagging = !isTagging;
       photoStates.forEach((element) {
@@ -64,8 +65,8 @@ class AppState extends State<App> {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: 'Photo Viewer',
-        home: GalleryPage('Image Gallery', photoStates, isTagging,
-            toogleTagging, onPhotoSelect));
+        home: GalleryPage('Image Gallery', photoStates, tags, isTagging,
+            toogleTagging, selectTag, onPhotoSelect));
   }
 }
 
@@ -81,13 +82,15 @@ class PhotoState {
 class GalleryPage extends StatelessWidget {
   final String title;
   final List<PhotoState> photoStates;
+  final Set<String> tags;
   final bool tagging;
 
   final Function toogleTagging;
+  final Function selectTag;
   final Function onPhotoSelect;
 
-  const GalleryPage(this.title, this.photoStates, this.tagging,
-      this.toogleTagging, this.onPhotoSelect,
+  const GalleryPage(this.title, this.photoStates, this.tags, this.tagging,
+      this.toogleTagging, this.selectTag, this.onPhotoSelect,
       {super.key});
 
   @override
@@ -97,8 +100,22 @@ class GalleryPage extends StatelessWidget {
         body: GridView.count(
             primary: false,
             crossAxisCount: 2,
-            children: List.of(photoStates.map(
-                (ps) => Photo(ps, tagging, toogleTagging, onPhotoSelect)))));
+            children:
+                List.of(photoStates.where((ps) => ps.display).map((ps) => Photo(
+                      ps,
+                      tagging,
+                      toogleTagging,
+                      onPhotoSelect,
+                    )))),
+        drawer: Drawer(
+            child: ListView(
+          children: List.of(tags.map((t) => ListTile(
+              title: Text(t),
+              onTap: () {
+                selectTag(t);
+                Navigator.of(context).pop();
+              }))),
+        )));
   }
 }
 
